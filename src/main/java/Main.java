@@ -12,9 +12,11 @@ public class Main {
             // Exit the program if the user types "exit"
             if (input.equals("exit 0")) {
                 System.exit(0);
+            } else if (input.startsWith("echo")) {
+                System.out.println(input.substring(5));
+            } else {
+                System.out.printf("%s: command not found\n", input);
             }
-
-            System.out.printf("%s: command not found\n", input);
         } while (true);
     }
 
