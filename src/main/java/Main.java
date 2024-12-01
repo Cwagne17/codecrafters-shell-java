@@ -8,6 +8,12 @@ public class Main {
         do {
             System.out.print("$ ");
             String input = scanner.nextLine();
+
+            // Exit the program if the user types "exit"
+            if (input.equals("exit 0")) {
+                System.exit(0);
+            }
+
             System.out.printf("%s: command not found\n", input);
         } while (true);
     }
