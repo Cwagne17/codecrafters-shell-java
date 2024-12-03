@@ -48,7 +48,6 @@ public class Main {
             }
 
             // Handle commands that may be in the PATH
-
             String commandPath = getCommandPath(command);
             if (commandPath != null) {
                 executeCommand(commandPath, agruments);
@@ -92,11 +91,15 @@ public class Main {
 
     private static void executeCommand(String commandPath, String arguments) {
         try {
-            ProcessBuilder pb = new ProcessBuilder(commandPath, arguments); 
+            ProcessBuilder pb = new ProcessBuilder(commandPath, arguments);
             Process p = pb.start();
 
             // To wait for the process to finish:
-            p.waitFor(); 
+            p.waitFor();
+
+            // Print the output of the command
+            java.util.Scanner s = new java.util.Scanner(p.getInputStream()).useDelimiter("\\A");
+            System.out.println(s.hasNext() ? s.next() : "");
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
@@ -105,7 +108,7 @@ public class Main {
     private static String getCommandPath(String command) {
         for (String path: PATH) {
             String commandPath = path + "/" + command;
-            if (new File(command).exists()) {
+            if (new File(commandPath).exists()) {
                 return commandPath;
             }
         }
