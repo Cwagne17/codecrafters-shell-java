@@ -1,51 +1,83 @@
 import java.util.Scanner;
 import java.util.Arrays;
+import java.io.File;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        // Uncomment this block to pass the first stage
-        String[] commands = {
-            "exit",
-            "echo",
-            "type"
-        };
+    enum Commands {
+        EXIT("exit"),
+        ECHO("echo"),
+        TYPE("type");
 
+        private final String command;
+
+        Commands(String command) {
+            this.command = command;
+        }
+
+        public String getCommand() {
+            return this.command;
+        }
+
+        public String getCommandArgs(String input) {
+            return input.substring(this.command.length() + 1);
+        }
+    }
+
+    static String[] PATH;
+
+    public static void main(String[] args) throws Exception {
+        PATH = System.getenv("PATH").split(":");
 
         Scanner scanner = new Scanner(System.in);
         do {
             System.out.print("$ ");
             String input = scanner.nextLine();
 
+            
+
             // Exit the program if the user types "exit"
-            if (input.equals("exit 0")) {
-                System.exit(0);
-            } else if (input.startsWith("echo")) {
-                System.out.println(input.substring(5));
-            } else if (input.startsWith("type")) {
-                String command = input.substring(5);
-                if (Arrays.asList(commands).contains(command)) {
-                    System.out.printf("%s is a shell builtin\n", command);
-                } else {
-                    System.out.printf("%s: not found\n", command);
-                }
+            if (input.startsWith(Commands.EXIT.getCommand())) {
+                exit(Commands.EXIT.getCommandArgs(input));
+            } else if (input.startsWith(Commands.ECHO.getCommand())) {
+                System.out.println(Commands.ECHO.getCommandArgs(input));
+            } else if (input.startsWith(Commands.TYPE.getCommand())) {
+                type(Commands.TYPE.getCommandArgs(input));
             } else {
                 System.out.printf("%s: command not found\n", input);
             }
         } while (true);
     }
 
-    // private static String readInput(scanner: Scanner) {
-    //     System.out.print("$ ");
-    //     String input = scanner.nextLine();
+    private static void exit(String args) {
+        if (!args.equals(Integer.toString(0))) {
+            System.out.println("exit: Unrecognized argument");
+            return;
+        }
+        System.exit(0);
+    }
 
-    //     return input;
-    // }
+    private static void type(String args) {
+        String[] commands = {
+            Commands.EXIT.getCommand(),
+            Commands.ECHO.getCommand(),
+            Commands.TYPE.getCommand()
+        };
 
-    // static void evaluateInput(input: String) {
-        
-    // }
+        // Check if the command is a shell builtin
+        if (Arrays.asList(commands).contains(args)) {
+            System.out.printf("%s is a shell builtin\n", args);
+            return;
+        }
 
-    // void printOutput(command: String) {
-    //     System.out.printf("%s: command not found\n", command);
-    // }
+        // Check if the command is in the PATH
+        for (String path: PATH) {
+            String commandPath = path + "/" + args;
+            if (new File(commandPath).exists()) {
+                System.out.printf("%s is %s\n", args, commandPath);
+                return;
+            }
+        }
+
+        System.out.printf("%s: not found\n", args);
+    }
 }
