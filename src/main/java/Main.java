@@ -84,6 +84,7 @@ public class Main {
         String commandPath = getCommandPath(args);
         if (commandPath != null) {
             System.out.printf("%s is %s\n", args, commandPath);
+            return;
         }
 
         System.out.printf("%s: not found\n", args);
