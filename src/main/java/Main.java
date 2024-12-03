@@ -1,6 +1,7 @@
 import java.util.Scanner;
 import java.util.Arrays;
 import java.io.File;
+import java.io.IOException;
 
 public class Main {
     enum Commands {
@@ -17,10 +18,6 @@ public class Main {
         public String getCommand() {
             return this.command;
         }
-
-        public String getCommandArgs(String input) {
-            return input.substring(this.command.length() + 1);
-        }
     }
 
     static String[] PATH;
@@ -33,18 +30,31 @@ public class Main {
             System.out.print("$ ");
             String input = scanner.nextLine();
 
-            
+            String[] splitCommand = input.split(" ", 2);
+            String command = splitCommand[0];
+            String agruments = splitCommand.length > 1 ? splitCommand[1] : "";
 
-            // Exit the program if the user types "exit"
-            if (input.startsWith(Commands.EXIT.getCommand())) {
-                exit(Commands.EXIT.getCommandArgs(input));
-            } else if (input.startsWith(Commands.ECHO.getCommand())) {
-                System.out.println(Commands.ECHO.getCommandArgs(input));
-            } else if (input.startsWith(Commands.TYPE.getCommand())) {
-                type(Commands.TYPE.getCommandArgs(input));
-            } else {
-                System.out.printf("%s: command not found\n", input);
+
+            // Handle built-in commands
+            if (command.startsWith(Commands.EXIT.getCommand())) {
+                exit(agruments);
+                continue;
+            } else if (command.startsWith(Commands.ECHO.getCommand())) {
+                System.out.println(agruments);
+                continue;
+            } else if (command.startsWith(Commands.TYPE.getCommand())) {
+                type(agruments);
+                continue;
             }
+
+            // Handle commands that may be in the PATH
+            String commandPath = getCommandPath(command);
+            if (commandPath != null) {
+                executeCommand(commandPath, agruments);
+            }  
+
+            // Default to command not found
+            System.out.printf("%s: command not found\n", input);
         } while (true);
     }
 
@@ -70,14 +80,35 @@ public class Main {
         }
 
         // Check if the command is in the PATH
-        for (String path: PATH) {
-            String commandPath = path + "/" + args;
-            if (new File(commandPath).exists()) {
-                System.out.printf("%s is %s\n", args, commandPath);
-                return;
-            }
+        String commandPath = getCommandPath(args);
+        if (commandPath != null) {
+            System.out.printf("%s is %s\n", args, commandPath);
         }
 
         System.out.printf("%s: not found\n", args);
+    }
+
+    private static void executeCommand(String commandPath, String arguments) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder(commandPath, arguments); 
+            Process p = pb.start();
+
+            // To wait for the process to finish:
+            p.waitFor(); 
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String getCommandPath(String command) {
+        for (String path: PATH) {
+            String commandPath = path + "/" + command;
+            if (new File(command).exists()) {
+                return commandPath;
+            }
+        }
+
+        // Couldn't find the command in the PATH
+        return null;
     }
 }
