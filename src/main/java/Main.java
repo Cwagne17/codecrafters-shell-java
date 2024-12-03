@@ -99,7 +99,10 @@ public class Main {
 
             // Print the output of the command
             java.util.Scanner s = new java.util.Scanner(p.getInputStream()).useDelimiter("\\A");
-            System.out.println(s.hasNext() ? s.next() : "");
+            while (s.hasNext()) {
+                System.out.println(s.next());
+            }
+            s.close();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
