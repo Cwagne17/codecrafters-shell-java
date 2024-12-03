@@ -48,9 +48,11 @@ public class Main {
             }
 
             // Handle commands that may be in the PATH
+
             String commandPath = getCommandPath(command);
             if (commandPath != null) {
                 executeCommand(commandPath, agruments);
+                continue;
             }  
 
             // Default to command not found
