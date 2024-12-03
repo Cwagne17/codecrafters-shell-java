@@ -24,7 +24,7 @@ public class Main {
             } else if (input.startsWith("type")) {
                 String command = input.substring(5);
                 if (Arrays.asList(commands).contains(command)) {
-                    System.out.printf("%s: is a shell builtin\n", command);
+                    System.out.printf("%s is a shell builtin\n", command);
                 } else {
                     System.out.printf("%s: command not found\n", command);
                 }
